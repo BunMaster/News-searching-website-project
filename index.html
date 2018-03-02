@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>NYTE</title>
+  <!-- React/ReactDOM CDN -->
+  <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+  <!-- Babel CDN -->
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <!-- jQuery CDN -->
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous">
+  </script>
+  
+  
+  <style>
+    body {
+      margin: 0;
+    }
+    .row {
+      display: flex;
+      flex-direction: column;
+    }
+    .col {
+      flex: 1;
+      margin: 5px;
+      padding: 5px;
+    }
+    .col img {
+      width: 100%;
+    }
+    .col div {
+      text-align: center;
+    }
+    @media (min-width: 500px) {
+      .row {
+        flex-flow: row wrap;
+      }
+      .col {
+        flex: 1 1 40%;
+      }
+    }
+    @media (min-width: 720px) {
+      .row {
+        flex-flow: row wrap;
+      }
+      .col {
+        flex: 1 1 20%;
+      }
+    }
+    
+    .col{
+      border-style: solid;
+      border-width: 5px;
+      border-color: red;
+    }
+    
+    .row{
+      display: flex;
+      background-color: rgb(241, 220, 161);
+    }
+
+  .head {
+   position: fixed;
+   left: 0;
+   top: 0;
+   width: 100%;
+   background-color: red;
+   color: white;
+   text-align: center;
+  }
+
+
+ .foot {
+   position: fixed;
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   background-color: red;
+   color: white;
+   text-align: center;
+  }
+
+.container{
+  
+  margin:30px;
+  
+  }
+
+.results{
+  text-align: center;
+  background-color:white;
+   color: red;
+    
+   
+}
+ 
+  </style>
+</head>
+<body>
+
+    <div class="head">
+        <h1>Search articles</h1>
+        <p>This page allows you to explore NY Times archive of articles. </p>
+    </div>
+      
+      <div class="results">
+          <h1>Search articles</h1>
+          <p>This page allows you to explore NY Times archive of articles. </p>
+          <div id="root"></div>
+        </div>
+      <!-- <div class="container">
+
+        <div class="row">
+          <div class="col">
+            <h3>{this.state.linkPreview.title}</h3>
+            <p>{this.state.linkPreview.description}</p>
+            <img src=https://www.w3schools.com/howto/img_fjords.jpg />
+          </div>
+        
+        
+
+        
+          <div class="col">
+            <h3>{this.state.linkPreview.title}</h3>
+            <p>{this.state.linkPreview.description}</p>
+            <img src=https://www.w3schools.com/howto/img_fjords.jpg />
+          </div>
+        
+
+        
+          <div class="col">
+            <h3>{this.state.linkPreview.title}</h3>
+            <p>{this.state.linkPreview.description}</p>
+            <img src=https://www.w3schools.com/howto/img_fjords.jpg />
+          </div>
+        
+
+
+        
+          <div class="col">
+            <h3>{this.state.linkPreview.title}</h3>
+            <p>{this.state.linkPreview.description}</p>
+            <img src=https://www.w3schools.com/howto/img_fjords.jpg />
+          </div>
+        </div>
+
+      </div> -->
+
+  
+      <!-- <div id="root"></div> -->
+  
+
+    <div class="foot">
+        
+        <p>The w3-container class can be used to display footers.</p>
+        
+      </div>
+
+
+
+  <script type="text/babel">
+
+    class Articles extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleYMSubmit = this.handleYMSubmit.bind(this);
+        this.handleYMChange = this.handleYMChange.bind(this);
+        this.onSuccess = this.onSuccess.bind(this);
+        this.state = {
+          articlesYM: [],
+          articles: [],
+          pageNumber: 1,
+          pageSize: 20,
+          articlesPreview: []
+        };
+      }
+      handleYMSubmit() {
+        const year = this.state.articlesYM[0];
+        const month = parseInt(this.state.articlesYM[1]);
+        const apiKey = 'b7c8b553a6284a30bbbbf898f3af2212';
+        const url = `https://developer.nytimes.com/proxy/https/api.nytimes.com/svc/archive/v1/${year}/${month}.json?api-key=${apiKey}`;
+        $.ajax({
+          url,
+          success: this.onSuccess,
+          error: this.onError
+        });
+      }
+      handleYMChange(articlesYMstr) {
+        const articlesYM = articlesYMstr.split('-');
+        this.setState(() => ({ articlesYM }));
+      }
+      onSuccess(data) {
+        const articles = data.response.docs;
+        this.setState(() => ({ articles }));
+      }
+      onError(error) {
+        throw error;
+      }
+      componentDidUpdate(prevProps, prevState){
+        if(prevState.articles.length !== this.state.articles.length) {
+          const start = (this.state.pageNumber - 1) * this.state.pageSize;
+          const end = start + this.state.pageSize;
+          const articlesPreview = this.state.articles.slice(start, end);
+          this.setState(() => ({ articlesPreview }));
+        }
+      }
+      render() {
+        return (
+          <div>
+            <h1>Articles</h1>
+            <FindArticles
+              handleYMChange={this.handleYMChange}
+              handleYMSubmit={this.handleYMSubmit}
+            />
+            <div className="container">
+              <div className="row">
+                {
+                  this.state.articlesPreview.map((article) => {
+                    return <Article key={article.web_url} url={article.web_url}/>;
+                  })
+                }  
+              </div>
+            </div>
+          </div>
+        );
+      }
+    }
+
+    class FindArticles extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleYMChange = this.handleYMChange.bind(this);
+        this.handleYMSubmit = this.handleYMSubmit.bind(this);
+      }
+      handleYMChange(e) {
+        const articlesYMstr = e.target.value;
+        this.props.handleYMChange(articlesYMstr);
+      }
+      handleYMSubmit(e) {
+        e.preventDefault();
+        this.props.handleYMSubmit();
+      }
+      render() {
+        return (
+        <form onSubmit={this.handleYMSubmit}>
+          <input type="month" onChange={this.handleYMChange} />
+          <input type="submit" value="Find" />
+        </form>
+      );
+      }
+    };
+
+    class Article extends React.Component {
+      constructor(props) {
+        super(props);
+        this.onSuccess = this.onSuccess.bind(this);
+        this.state = {
+          linkPreview: {}
+        };
+      }
+      componentDidMount() {
+        const apiKey = '123456';
+        const url = `http://api.linkpreview.net/?key=123456&q=https://www.google.com`;
+        $.ajax({
+          url,
+          success: this.onSuccess,
+          error: this.onError
+        });
+      }
+      onSuccess(data) {
+        console.log(data.title);
+        const linkPreview = data;
+        this.setState(() => ({ linkPreview }));
+      }
+      onError(error) {
+        throw error;
+      }
+      render() {
+        return (
+          <div className="col">
+            <h3>{this.state.linkPreview.title}</h3>
+            <p>{this.state.linkPreview.description}</p>
+            <img src={this.state.linkPreview.image} alt={this.state.linkPreview.title}/>
+          </div>
+        );
+      }
+    }
+
+    ReactDOM.render(<Articles />, document.getElementById('root'));
+  </script>
+</body>
+</html>
+
+
